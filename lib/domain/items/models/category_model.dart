@@ -1,4 +1,4 @@
-import 'package:orders_handler/domain/items/model.dart';
+import 'package:orders_handler/domain/items/models/item_model.dart';
 import 'package:uuid/v1.dart';
 
 class CategoryModel {

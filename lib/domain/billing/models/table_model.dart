@@ -1,17 +1,17 @@
-import 'package:uuid/v1.dart';
-
 class TableModel {
-  final UuidV1 id;
+  final String id;
   final String name;
-  final String? alias;
-  final UuidV1? billId;
-  final double tableTotal = 0;
+  String? alias;
+  List<String> tabIds;
+  double tableTotal = 0;
+  
+  // todo table shape and position properties
 
   TableModel({
     required this.id,
     required this.name,
+    required this.tabIds,
     this.alias,
-    this.billId,
   });
 
   factory TableModel.fromJson(Map<String,dynamic> json) {
@@ -19,7 +19,7 @@ class TableModel {
       id: json['id'],
       name: json['name'],
       alias: json['alias'] == '' ? null : json['alias'],
-      billId: json['billId'] == '' ? null : json['billId'],
+      tabIds: json['tabIds'] == '' ? null : json['billId'],
     );
   }
 }

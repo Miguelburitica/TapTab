@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:orders_handler/routes.dart';
-import 'package:orders_handler/views/home_page.dart';
+import 'package:orders_handler/pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());

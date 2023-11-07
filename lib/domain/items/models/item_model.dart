@@ -1,5 +1,28 @@
 import 'package:uuid/v1.dart';
 
+class ItemsResume {
+  final UuidV1 itemId;
+  final String name;
+  int quantity;
+  double subtotal;
+
+  ItemsResume({
+    required this.itemId,
+    required this.name,
+    required this.quantity,
+    required this.subtotal,
+  });
+
+  factory ItemsResume.fromJson(Map<String, dynamic> json) {
+    return ItemsResume(
+      itemId: json['itemId'],
+      name: json['name'],
+      quantity: json['quantity'],
+      subtotal: json['subtotal'],
+    );
+  }
+}
+
 class ItemModel {
   final UuidV1 id;
   final String name;

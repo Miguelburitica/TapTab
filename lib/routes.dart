@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
-import 'package:orders_handler/views/config_page.dart';
-import 'package:orders_handler/views/home_page.dart';
-import 'package:orders_handler/views/tab_creator_page.dart';
+import 'package:orders_handler/pages/config_page.dart';
+import 'package:orders_handler/pages/home_page.dart';
 
 class AppPages {
   static final routes = [
@@ -16,10 +15,6 @@ class AppPages {
     GetPage(
       name: '/profile',
       page: () => const ConfigPage(),
-    ),
-    GetPage(
-      name: '/create-tab',
-      page: () => const TabCreatorPage(),
     ),
     GetPage(
       name: '/menu',

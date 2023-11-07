@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/instance_manager.dart';
+import 'package:get/get.dart';
 import 'package:orders_handler/layout.dart';
+import 'package:orders_handler/pages/controller.dart';
 
 class ConfigPage extends StatelessWidget {
   const ConfigPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeController = Get.put(ThemeController());
+    
     return Layout(
       title: 'Configuraciones',
       body: ListView(
@@ -25,7 +27,24 @@ class ConfigPage extends StatelessWidget {
             callback: () {
               Get.toNamed('/');
             },
-          )
+          ),
+          Obx(() {
+            return _CustomListTile(
+              icon: themeController.isDarkMode.value
+                ? Icons.dark_mode_rounded
+                : Icons.light_mode_rounded,
+              title: 'Modo oscuro',
+              callback: () {
+                themeController.switchTheme();
+              },
+              trailing: Obx(() => Switch(
+                value: themeController.isDarkMode.value,
+                onChanged: (value) {
+                  themeController.switchTheme();
+                },
+              )),
+            );
+          })
         ],
       ),
     );
