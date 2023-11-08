@@ -1,21 +1,21 @@
 import 'package:uuid/v1.dart';
 
-class ItemsResume {
-  final UuidV1 itemId;
+class ProductsResume {
+  final String productId;
   final String name;
   int quantity;
   double subtotal;
 
-  ItemsResume({
-    required this.itemId,
+  ProductsResume({
+    required this.productId,
     required this.name,
     required this.quantity,
     required this.subtotal,
   });
 
-  factory ItemsResume.fromJson(Map<String, dynamic> json) {
-    return ItemsResume(
-      itemId: json['itemId'],
+  factory ProductsResume.fromJson(Map<String, dynamic> json) {
+    return ProductsResume(
+      productId: json['productId'],
       name: json['name'],
       quantity: json['quantity'],
       subtotal: json['subtotal'],
@@ -23,15 +23,15 @@ class ItemsResume {
   }
 }
 
-class ItemModel {
-  final UuidV1 id;
+class ProductModel {
+  final String id;
   final String name;
   final String? description;
   final String? image;
   final double price;
-  final UuidV1 categoryId;
+  final String categoryId;
 
-  ItemModel({
+  ProductModel({
     required this.id,
     required this.name,
     this.description,
@@ -40,8 +40,8 @@ class ItemModel {
     required this.categoryId
   });
 
-  factory ItemModel.fromJson(Map<String, dynamic> json) {
-    return ItemModel(
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
       id: json['id'],
       name: json['name'],
       description: json['description'] == '' ? null : json['description'],

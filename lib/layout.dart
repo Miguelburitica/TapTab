@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class Layout extends StatelessWidget {
   const Layout({
@@ -44,9 +45,9 @@ class Layout extends StatelessWidget {
         leading: GestureDetector(
           onTap: () {
             if (leadingRoute == '') {
-              Navigator.of(context).pop();
+              Get.back();
             } else {
-              Navigator.of(context).pushReplacementNamed(leadingRoute);
+              Get.replace(leadingRoute);
             }
           },
           child: Padding(
@@ -63,7 +64,10 @@ class Layout extends StatelessWidget {
 
     return Scaffold(
       appBar: navbar,
-      body: body,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: body,
+      ),
       floatingActionButton: floatingActionButton
     );
   }

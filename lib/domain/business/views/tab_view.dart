@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:orders_handler/domain/billing/models/tab_model.dart';
-import 'package:orders_handler/utils.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/tab_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/utils.dart';
 
 class TabCard extends StatelessWidget {
   final TabModel tab;
@@ -40,10 +40,10 @@ class TabCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    rows: tab.itemsResume.map((item) => DataRow(
+                    rows: tab.productsResume.map((product) => DataRow(
                       cells: <DataCell>[
-                        DataCell(Text(item.quantity.toString())),
-                        DataCell(Text(item.name.toString())),
+                        DataCell(Text(product.quantity.toString())),
+                        DataCell(Text(product.name.toString())),
                       ],
                     )).toList(),
                   ),
@@ -98,9 +98,9 @@ class TabGrid extends StatelessWidget {
     return GridView.builder(
       itemCount: tabs.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // number of items in a row
-        crossAxisSpacing: 10, // spacing between items horizontally
-        mainAxisSpacing: 10, // spacing between items vertically
+        crossAxisCount: 2, // number of products in a row
+        crossAxisSpacing: 10, // spacing between products horizontally
+        mainAxisSpacing: 10, // spacing between products vertically
       ),
       itemBuilder: (context, index) {
         return TabCard(tab: tabs[index]);

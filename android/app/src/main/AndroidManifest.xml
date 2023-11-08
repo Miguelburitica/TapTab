@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="orders_handler"
+        android:label="TapTab pedidos y cuentas"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,6 +1,10 @@
 import 'package:get/get.dart';
-import 'package:orders_handler/pages/config_page.dart';
-import 'package:orders_handler/pages/home_page.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/pages/create_table.dart';
+import 'package:tap_tab_pedidos_y_cuentas/pages/menu_page.dart';
+import 'package:tap_tab_pedidos_y_cuentas/pages/tab_upsert.dart';
+import 'package:tap_tab_pedidos_y_cuentas/pages/config_page.dart';
+import 'package:tap_tab_pedidos_y_cuentas/pages/home_page.dart';
 
 class AppPages {
   static final routes = [
@@ -18,7 +22,28 @@ class AppPages {
     ),
     GetPage(
       name: '/menu',
+      page: () => const MenuPage(),
+    ),
+    GetPage(
+      name: '/table-create',
+      page: () => const CreateTablePage(),
+      binding: BindingsBuilder(() {
+        Get.put(BillingController());
+      }),
+    ),
+    GetPage(
+      name: '/table-update',
       page: () => const ConfigPage(),
+      binding: BindingsBuilder(() {
+        Get.put(BillingController());
+      }),
+    ),
+    GetPage(
+      name: '/tab-upsert',
+      page: () => const TabUpsertPage(),
+      binding: BindingsBuilder(() {
+        Get.put(BillingController());
+      }),
     ),
   ];
 }

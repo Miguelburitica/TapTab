@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:orders_handler/layout.dart';
-import 'package:orders_handler/pages/controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/layout.dart';
+import 'package:tap_tab_pedidos_y_cuentas/pages/controller.dart';
 
 class ConfigPage extends StatelessWidget {
   const ConfigPage({super.key});
@@ -14,14 +14,14 @@ class ConfigPage extends StatelessWidget {
       title: 'Configuraciones',
       body: ListView(
         children: [
-          _CustomListTile(
+          CustomListTile(
             icon: Icons.menu_book_rounded,
             title: 'Menú',
             callback: () {
-              Get.toNamed('/');
+              Get.toNamed('/menu');
             },
           ),
-          _CustomListTile(
+          CustomListTile(
             icon: Icons.person_rounded,
             title: 'Perfil',
             callback: () {
@@ -29,7 +29,7 @@ class ConfigPage extends StatelessWidget {
             },
           ),
           Obx(() {
-            return _CustomListTile(
+            return CustomListTile(
               icon: themeController.isDarkMode.value
                 ? Icons.dark_mode_rounded
                 : Icons.light_mode_rounded,
@@ -37,12 +37,12 @@ class ConfigPage extends StatelessWidget {
               callback: () {
                 themeController.switchTheme();
               },
-              trailing: Obx(() => Switch(
+              trailing: Switch(
                 value: themeController.isDarkMode.value,
                 onChanged: (value) {
                   themeController.switchTheme();
                 },
-              )),
+              ),
             );
           })
         ],
@@ -51,24 +51,36 @@ class ConfigPage extends StatelessWidget {
   }
 }
 
-class _CustomListTile extends StatelessWidget {
+class CustomListTile extends StatelessWidget {
   final String title;
   final IconData icon;
   final Widget? trailing;
+  final bool isEnable;
   final void Function() callback;
+  final String? subtitle;
 
-  const _CustomListTile({
+  const CustomListTile({
     Key? key,
     required this.title,
     required this.icon,
     required this.callback,
     this.trailing,
+    this.isEnable = true,
+    this.subtitle,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(title),
+      subtitle: subtitle != null
+        ? Text(
+            subtitle!,
+            style: const TextStyle(
+              fontSize: 12
+            ),
+          )
+        : null,
       iconColor: Theme.of(context).colorScheme.primary,
       leading: DecoratedBox(
         decoration: BoxDecoration(
@@ -82,6 +94,7 @@ class _CustomListTile extends StatelessWidget {
       ),
       trailing: trailing ?? const Icon(Icons.arrow_forward_ios_rounded, size: 18),
       onTap: callback,
+      enabled: isEnable,
     );
   }
 }

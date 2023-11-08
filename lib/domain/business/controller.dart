@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:orders_handler/domain/billing/models/tab_model.dart';
-import 'package:orders_handler/domain/billing/models/table_model.dart';
-import 'package:orders_handler/domain/items/models/item_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/tab_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/table_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/domain/products/models/product_model.dart';
 
 class BillingController extends GetxController {
   final _tables = <TableModel>[];
@@ -21,20 +21,20 @@ class BillingController extends GetxController {
     update();
   }
 
-  void addItemsToTab(String tabId, List<ItemModel> items) {
+  void addproductsToTab(String tabId, List<ProductModel> products) {
     TabModel tab = _sessionTabs.firstWhere((tab) => tab.id == tabId);
 
-    tab.items.addAll(items);
+    tab.products.addAll(products);
 
-    List<ItemsResume> itemsResume = tab.itemsResume;
-    for (var element in items) {
-      if (itemsResume.any((item) => item.itemId == element.id)) {
-        ItemsResume currentItemResume = itemsResume.firstWhere((item) => item.itemId == element.id);
-        currentItemResume.quantity++;
-        currentItemResume.subtotal += element.price;
+    List<ProductsResume> productsResume = tab.productsResume;
+    for (var element in products) {
+      if (productsResume.any((product) => product.productId == element.id)) {
+        ProductsResume currentproductResume = productsResume.firstWhere((product) => product.productId == element.id);
+        currentproductResume.quantity++;
+        currentproductResume.subtotal += element.price;
       } else {
-        itemsResume.add(ItemsResume(
-          itemId: element.id,
+        productsResume.add(ProductsResume(
+          productId: element.id,
           name: element.name,
           quantity: 1,
           subtotal: element.price,
