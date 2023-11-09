@@ -48,6 +48,7 @@ class MenuPage extends StatelessWidget {
                       ));
                     },
                     controller: categoryNameController,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       labelText: 'Nombre',
                       border: const OutlineInputBorder(),

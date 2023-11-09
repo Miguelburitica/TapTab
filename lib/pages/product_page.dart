@@ -18,6 +18,7 @@ class ProductPage extends StatelessWidget {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
     final TextEditingController descriptionController = TextEditingController();
+    final arguments = Get.arguments;
     
     return Layout(
       title: 'Nuevo producto',
@@ -34,6 +35,7 @@ class ProductPage extends StatelessWidget {
             child: ListView(
               children: [
                 DropdownButtonFormField(
+                  value: arguments['categoryId'],
                   onChanged: (value) {
                     // todo change table
                     currentCategory = currentCategories.firstWhere((table) => table.id == value);
@@ -63,6 +65,8 @@ class ProductPage extends StatelessWidget {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.text,
+                  // start with mayus
+                  textCapitalization: TextCapitalization.sentences,
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -84,6 +88,7 @@ class ProductPage extends StatelessWidget {
                     border: OutlineInputBorder(),
                     floatingLabelBehavior: FloatingLabelBehavior.always
                   ),
+                  textCapitalization: TextCapitalization.sentences,
                   keyboardType: TextInputType.multiline,
                   maxLines: 3,
                   // indicate that its optional
