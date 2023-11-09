@@ -1,4 +1,4 @@
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/domain/products/models/product_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/product_model.dart';
 
 enum TabStatus {
   active,

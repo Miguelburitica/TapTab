@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/controller.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/tab_model.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/table_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/billing_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/inventory_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/views/tab_view.dart';
 import 'package:tap_tab_pedidos_y_cuentas/layout.dart';
-import 'package:uuid/v1.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final BillingController billingController = Get.put(BillingController());
+  final InventoryController inventoryController = Get.put(InventoryController());
 
   @override
   void initState() {

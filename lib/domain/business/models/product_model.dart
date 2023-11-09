@@ -1,5 +1,3 @@
-import 'package:uuid/v1.dart';
-
 class ProductsResume {
   final String productId;
   final String name;

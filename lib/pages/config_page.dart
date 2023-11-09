@@ -24,9 +24,25 @@ class ConfigPage extends StatelessWidget {
           CustomListTile(
             icon: Icons.person_rounded,
             title: 'Perfil',
+            isEnable: false,
             callback: () {
               Get.toNamed('/');
             },
+          ),
+          CustomListTile(
+            title: 'Consolidado',
+            subtitle: 'Encontrarás un reporte general de ventas y también uno por cada sesión que hayas realizado hasta la fecha',
+            icon: Icons.bar_chart_rounded,
+            isEnable: false,
+            callback: () {
+            }
+          ),
+          CustomListTile(
+            title: 'Personal',
+            subtitle: 'Aquí podrás agregar, editar y eliminar usuarios, además de ver sus ventas y sesiones',
+            icon: Icons.people_rounded,
+            isEnable: false,
+            callback: () {},
           ),
           Obx(() {
             return CustomListTile(

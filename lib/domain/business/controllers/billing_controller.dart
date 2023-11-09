@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/product_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/tab_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/table_model.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/domain/products/models/product_model.dart';
 
 class BillingController extends GetxController {
   final _tables = <TableModel>[];
@@ -21,7 +21,7 @@ class BillingController extends GetxController {
     update();
   }
 
-  void addproductsToTab(String tabId, List<ProductModel> products) {
+  void addProductsToTab(String tabId, List<ProductModel> products) {
     TabModel tab = _sessionTabs.firstWhere((tab) => tab.id == tabId);
 
     tab.products.addAll(products);
