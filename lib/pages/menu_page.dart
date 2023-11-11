@@ -46,6 +46,7 @@ class MenuPage extends StatelessWidget {
                         id: const UuidV1().generate(),
                         name: categoryNameController.text,
                       ));
+                      categoryNameController.clear();
                     },
                     controller: categoryNameController,
                     textCapitalization: TextCapitalization.sentences,
@@ -75,7 +76,7 @@ class MenuPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             GetBuilder<InventoryController>(
-              builder: (context) {
+              builder: (controller) {
                 return Expanded(
                   child: GridView.builder(
                     itemCount: currentCategories.length,
@@ -176,25 +177,25 @@ class MenuPage extends StatelessWidget {
                                 ),
                               ),
                               // total and button to add products
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Total: ${products.length.toString()}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                              ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.lightGreenAccent),
+                                  foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                                ),
+                                onPressed: () {
+                                  Get.toNamed('/product-upsert', arguments: {'categoryId': category.id});
+                                },
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox.fromSize(size: const Size(10, 0)),
+                                    const Text(
+                                      'Agregar',
+                                      style: TextStyle(fontSize: 18),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    child: Icon(
-                                      Icons.add_circle_rounded,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    onTap: () {
-                                      Get.toNamed('/product-upsert', arguments: {'categoryId': category.id});
-                                    },
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),

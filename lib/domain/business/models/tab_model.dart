@@ -11,7 +11,7 @@ class TabModel {
   String? alias;
   int subtotal;
   final List<ProductModel> products;
-  List<ProductsResume> productsResume;
+  final List<ProductsResume> productsResume;
   TabStatus status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -22,7 +22,7 @@ class TabModel {
     required this.subtotal,
     required this.products,
     required this.status,
-    this.productsResume = const [],
+    required this.productsResume,
     this.alias,
     this.createdAt,
     this.updatedAt,

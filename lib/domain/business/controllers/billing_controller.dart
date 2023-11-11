@@ -45,6 +45,23 @@ class BillingController extends GetxController {
     update();
   }
 
+  void removeProductsFromTab(String tabId, List<ProductModel> products) {
+    TabModel tab = _sessionTabs.firstWhere((tab) => tab.id == tabId);
+
+    tab.products.removeWhere((product) => products.any((element) => element.id == product.id));
+
+    List<ProductsResume> productsResume = tab.productsResume;
+    for (var element in products) {
+      if (productsResume.any((product) => product.productId == element.id)) {
+        ProductsResume currentproductResume = productsResume.firstWhere((product) => product.productId == element.id);
+        currentproductResume.quantity--;
+        currentproductResume.subtotal -= element.price;
+      }
+    }
+    
+    update();
+  }
+
   void finishTab(String tabId) {
     TabModel tab = _sessionTabs.firstWhere((tab) => tab.id == tabId);
     tab.status = TabStatus.closed;
@@ -53,6 +70,11 @@ class BillingController extends GetxController {
     TableModel table = _tables.firstWhere((table) => table.id == tab.tableId);
     table.tableTotal += tab.subtotal;
     
+    update();
+  }
+
+  void removeTab(String tabId) {
+    _sessionTabs.removeWhere((tab) => tab.id == tabId);
     update();
   }
 

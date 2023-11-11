@@ -55,6 +55,7 @@ class AppPages {
       page: () => const TabUpsertPage(),
       binding: BindingsBuilder(() {
         Get.put(BillingController());
+        Get.put(InventoryController());
       }),
     ),
   ];

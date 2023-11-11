@@ -14,11 +14,11 @@ class ProductPage extends StatelessWidget {
     final inventoryController = Get.find<InventoryController>();
     final List<CategoryModel> currentCategories = inventoryController.categories;
 
-    CategoryModel currentCategory = currentCategories.first;
     final TextEditingController nameController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
     final TextEditingController descriptionController = TextEditingController();
     final arguments = Get.arguments;
+    CategoryModel currentCategory = currentCategories.firstWhereOrNull((category) => category.id == arguments['categoryId']) ?? currentCategories.first;
     
     return Layout(
       title: 'Nuevo producto',
