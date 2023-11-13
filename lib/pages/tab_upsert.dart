@@ -14,10 +14,10 @@ class TabUpsertPage extends StatefulWidget {
   const TabUpsertPage({Key? key}) : super(key: key);
 
   @override
-  _TabUpsertPageState createState() => _TabUpsertPageState();
+  TabUpsertPageState createState() => TabUpsertPageState();
 }
 
-class _TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderStateMixin {
+class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderStateMixin {
   final availableTables = Get.find<BillingController>().tables;
   final arguments = Get.arguments ?? {};
   final currentCategories = Get.find<InventoryController>().categories;
@@ -272,8 +272,77 @@ class _TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProvider
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(Colors.lightGreenAccent),
                               foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                )
+                              ),
                             ),
-                            child: const Text('Confirmar pedido'),
+                            // the button must contain the products added and the total price
+                            // child: const Text('Confirmar pedido'),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 80,
+                                    padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      color: Theme.of(context).colorScheme.background,
+                                    ),
+                                    child: ListView(
+                                      children: [
+                                        ...currentOrder.entries.map((order) {
+                                          if (order.value == 0) return const SizedBox.shrink();
+                                          final product = Get.find<InventoryController>().products.firstWhere((product) => product.id == order.key);
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  '${order.value} ${product.name}',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Theme.of(context).colorScheme.onBackground
+                                                  ),
+                                                ),
+                                                Text(
+                                                  formatCurrency(product.price * order.value),
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Theme.of(context).colorScheme.onBackground
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.monetization_on_rounded,
+                                        size: 20,
+                                      ),
+                                      SizedBox.fromSize(size: const Size(10, 0)),
+                                      const Text(
+                                        'Confirmar pedido',
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
                           )
                         ],
                       ),
@@ -311,21 +380,6 @@ void confirmOrder(String tabId, Map<String,int> order) {
       final products = List.generate(currentQuantityOrder.value * -1, (index) => product);
       billingController.removeProductsFromTab(tabId, products);
     }
-    
-    // if (currentQuantityOrder.value > productResume.quantity) {
-    //   // add the difference to the tab
-    //   final difference = currentQuantityOrder.value - productResume.quantity;
-    //   final product = Get.find<InventoryController>().products.firstWhere((product) => product.id == productResume.productId);
-    //   final products = List.generate(difference, (index) => product);
-    //   billingController.addProductsToTab(tabId, products);
-    // } else if (currentQuantityOrder.value < productResume.quantity) {
-    //   // remove the difference from the tab
-    //   final difference = productResume.quantity - currentQuantityOrder.value;
-    //   final product = Get.find<InventoryController>().products.firstWhere((product) => product.id == productResume.productId);
-    //   final products = List.generate(difference, (index) => product);
-    //   billingController.removeProductsFromTab(tabId, products);
-    // }
-    
   }
 }
 
@@ -372,7 +426,7 @@ Widget tabResumeInfo(BuildContext context, String tabId) {
                     return ListTile(
                       title: Text(product.name),
                       subtitle: Text('Cantidad: ${product.quantity}'),
-                      trailing: Text('\$${product.subtotal}'),
+                      trailing: Text(formatCurrency(product.subtotal)),
                     );
                   }).toList(),
                 ],
@@ -382,9 +436,10 @@ Widget tabResumeInfo(BuildContext context, String tabId) {
         ),
         TextButton(
           onPressed: () {
-            // todo delete the tab
-            Get.find<BillingController>().removeTab(tabId);
-            Get.back();
+            // show a dialog to confirm the deletion of the tab
+            showDialog(context: context, builder: (context) {
+              return deleteTabWarning(context, tabId);
+            });
           },
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.error,
@@ -392,17 +447,66 @@ Widget tabResumeInfo(BuildContext context, String tabId) {
           ),
           child: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
-            child: Text(
-              'Eliminar',
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 22,
-              )
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Eliminar',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 22,
+                  )
+                ),
+              ],
             ),
           ),
         ),
       ],
     ),
+  );
+}
+
+AlertDialog deleteTabWarning(BuildContext context, String tabId) {
+  BillingController billingController = Get.find<BillingController>();
+  TabModel currentTab = billingController.currentActiveTabs.firstWhere((tab) => tab.id == tabId);
+
+  return AlertDialog(
+    title: const Text(
+      'Eliminar cuenta',
+    ),
+    surfaceTintColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+    content: SizedBox(
+      width: double.maxFinite,
+      height: MediaQuery.of(context).size.height * 0.2,
+      child: Column(
+        children: [
+          Text('Estás seguro de eliminar la cuenta ${currentTab.alias} con una cuenta de ${formatCurrency(currentTab.subtotal)}'),
+        ],
+      ),
+    ),
+    actionsAlignment: MainAxisAlignment.spaceBetween,
+    actions: [
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text(
+          'Cancelar',
+        ),
+      ),
+      TextButton(
+        onPressed: () {
+          Get.find<BillingController>().removeTab(tabId);
+          Get.back();
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+        ),
+        child: const Text('Eliminar'),
+      ),
+    ],
   );
 }
 

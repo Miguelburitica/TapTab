@@ -9,12 +9,12 @@ class TabModel {
   final String id;
   String tableId;
   String? alias;
-  int subtotal;
+  double subtotal;
   final List<ProductModel> products;
   final List<ProductsResume> productsResume;
   TabStatus status;
   final DateTime? createdAt;
-  final DateTime? updatedAt;
+  DateTime? updatedAt;
 
   TabModel({
     required this.id,
@@ -27,6 +27,10 @@ class TabModel {
     this.createdAt,
     this.updatedAt,
   });
+
+  void updateTab() {
+    updatedAt = DateTime.now();
+  }
 
   factory TabModel.fromJson(Map<String, dynamic> json) {
     return TabModel(

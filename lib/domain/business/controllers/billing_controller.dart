@@ -41,6 +41,13 @@ class BillingController extends GetxController {
         ));
       }
     }
+
+    // compute the productsResume subtotals on the tab subtotal
+    double value = 0;
+    for (var productResume in productsResume) {
+      value = value + productResume.subtotal;
+    }
+    tab.subtotal = value;
     
     update();
   }
@@ -58,6 +65,15 @@ class BillingController extends GetxController {
         currentproductResume.subtotal -= element.price;
       }
     }
+
+    // compute the productsResume subtotals on the tab subtotal
+    double value = 0;
+    for (var productResume in productsResume) {
+      value = value + productResume.subtotal;
+    }
+    tab.subtotal = value;
+    
+    tab.updateTab();
     
     update();
   }
@@ -74,6 +90,10 @@ class BillingController extends GetxController {
   }
 
   void removeTab(String tabId) {
+    // remove the tab from the table
+    TableModel table = _tables.firstWhere((table) => table.tabIds.any((tab) => tab == tabId));
+    table.tabIds.removeWhere((tab) => tab == tabId);
+    
     _sessionTabs.removeWhere((tab) => tab.id == tabId);
     update();
   }

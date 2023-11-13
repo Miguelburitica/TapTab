@@ -31,39 +31,25 @@ class TabCard extends StatelessWidget {
               GetBuilder<BillingController>(
                 builder: (controller) {
                   final currentTab = controller.currentActiveTabs.firstWhereOrNull((element) => element.id == tab.id) ?? tab;
-                  
+
                   return Expanded(
                     child: ListView(
                       children: [
-                        DataTable(
-                          columns: const <DataColumn>[
-                            DataColumn(
-                              label: Text(
-                                'Cantidad',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Text(
-                                'Producto',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ),
-                          ],
-                          rows: currentTab.productsResume.map((product) => DataRow(
-                            cells: <DataCell>[
-                              DataCell(Text(product.quantity.toString())),
-                              DataCell(Text(product.name.toString())),
+                        for (final product in currentTab.productsResume)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('${product.quantity} ${product.name}'),
+                              Text(formatCurrency(product.subtotal)),
                             ],
-                          )).toList(),
-                        ),
+                          ),
                       ],
                     ),
                   );
                 }
               ),
               const Divider(),
-              Text('Subtotal: ${tab.subtotal}'),
+              Text('Subtotal: ${formatCurrency(tab.subtotal)}'),
               // mostrar hace cuanto tiempo se hizo el último pedido
               Text(getLastTimeUpdated(tab.updatedAt ?? tab.createdAt!)),
               ElevatedButton(
