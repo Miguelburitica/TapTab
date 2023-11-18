@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/billing_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/table_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/inventory_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/controllers/tab_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/pages/create_table.dart';
 import 'package:tap_tab_pedidos_y_cuentas/pages/menu_page.dart';
 import 'package:tap_tab_pedidos_y_cuentas/pages/product_page.dart';
@@ -40,22 +41,23 @@ class AppPages {
       name: '/table-create',
       page: () => const CreateTablePage(),
       binding: BindingsBuilder(() {
-        Get.put(BillingController());
+        Get.put(TableController());
       }),
     ),
     GetPage(
       name: '/table-update',
       page: () => const ConfigPage(),
       binding: BindingsBuilder(() {
-        Get.put(BillingController());
+        Get.put(TableController());
       }),
     ),
     GetPage(
       name: '/tab-upsert',
       page: () => const TabUpsertPage(),
       binding: BindingsBuilder(() {
-        Get.put(BillingController());
+        Get.put(TableController());
         Get.put(InventoryController());
+        Get.put(TabSessionController());
       }),
     ),
   ];

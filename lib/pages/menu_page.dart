@@ -157,6 +157,7 @@ class MenuPage extends StatelessWidget {
                                 child: ListView(
                                   shrinkWrap: true,
                                   children: [
+                                  // TODO edit products
                                     ...products.map((product) => Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/billing_controller.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/tab_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/controllers/tab_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/models/tab_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/utils.dart';
 
 class TabCard extends StatelessWidget {
@@ -28,7 +28,7 @@ class TabCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Divider(),
-              GetBuilder<BillingController>(
+              GetBuilder<TabSessionController>(
                 builder: (controller) {
                   final currentTab = controller.currentActiveTabs.firstWhereOrNull((element) => element.id == tab.id) ?? tab;
 
@@ -94,6 +94,7 @@ class TabGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (tabs.isEmpty) return const Center(child: Text('No hay cuentas activas'));
     return GridView.builder(
       itemCount: tabs.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

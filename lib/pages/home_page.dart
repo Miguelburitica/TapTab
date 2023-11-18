@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/billing_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/table_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/inventory_controller.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/views/tab_view.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/controllers/tab_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/views/tab_view.dart';
 import 'package:tap_tab_pedidos_y_cuentas/layout.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,7 +15,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final BillingController billingController = Get.put(BillingController());
+  final TableController tableController = Get.put(TableController());
+  final TabSessionController billingController = Get.put(TabSessionController());
   final InventoryController inventoryController = Get.put(InventoryController());
 
   @override
@@ -48,17 +50,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         children: [
           TabBar(
             controller: _tabController,
-            tabs: [
+            tabs: const [
               Tab(
-                icon: Icon(
-                  Icons.monetization_on_rounded, // todo improve icons
-                  color: Theme.of(context).colorScheme.primary,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.attach_money_rounded, // todo improve icons
+                      size: 18,
+                    ),
+                    SizedBox(width: 8),
+                    Text('Cuentas')
+                  ],
                 ),
               ),
               Tab(
-                icon: Icon(
-                  Icons.table_bar_rounded, // todo improve icons
-                  color: Theme.of(context).colorScheme.primary,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.table_bar_rounded, // todo improve icons
+                      size: 18,
+                    ),
+                    SizedBox(width: 8),
+                    Text('Mesas')
+                  ],
                 ),
               )
             ],
@@ -67,7 +83,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             child: TabBarView(
               controller: _tabController,
               children: [
-                GetBuilder<BillingController>(
+                GetBuilder<TabSessionController>(
                   builder: (controller) {
                     return TabGrid(tabs: controller.currentActiveTabs);
                   },
@@ -77,7 +93,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   child: Column(
                     children: [
                       const Text('Aquí se mostrará el mapa de las mesas, por ahora colocaré la lista de mesas que hay creadas'),
-                      GetBuilder<BillingController>(
+                      GetBuilder<TableController>(
                         builder: (controller) {
                           return Column(
                             children: controller.tables.map((table) {
@@ -110,7 +126,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (!_tabController.indexIsChanging && _tabController.index == 0) {
-            if (billingController.tables.isEmpty) {
+            if (tableController.tables.isEmpty) {
               Get.toNamed('/table-create', arguments: {'message': 'No hay mesas creadas. Crea una mesa para poder crear una cuenta.'});
             } else {
               Get.toNamed('/tab-upsert');

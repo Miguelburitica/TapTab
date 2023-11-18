@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/billing_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/table_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/inventory_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/product_model.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/tab_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/controllers/tab_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/models/tab_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/table_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/layout.dart';
 import 'package:tap_tab_pedidos_y_cuentas/utils.dart';
@@ -18,7 +19,8 @@ class TabUpsertPage extends StatefulWidget {
 }
 
 class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderStateMixin {
-  final availableTables = Get.find<BillingController>().tables;
+  final availableTables = Get.find<TableController>().tables;
+  final activeTabs = Get.find<TabSessionController>().currentActiveTabs;
   final arguments = Get.arguments ?? {};
   final currentCategories = Get.find<InventoryController>().categories;
   final currentProducts = Get.find<InventoryController>().products;
@@ -41,7 +43,8 @@ class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderS
   Widget build(BuildContext context) {
     final tabId = arguments['tabId'] as String?;
     
-    TableModel currentTable = availableTables.firstWhereOrNull((table) => table.tabIds.isEmpty) ?? availableTables.first;
+    TableModel? freeTable = availableTables.firstWhereOrNull((table) => !activeTabs.any((activeTab) => activeTab.tableId == table.id));
+    TableModel currentTable = freeTable ?? availableTables.first;
     TextEditingController aliasController = TextEditingController();
 
     return Layout(
@@ -132,14 +135,14 @@ class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderS
                       productsResume: []
                     );
 
-                    if (currentTable.tabIds.isNotEmpty) {
+                    if (freeTable == null || (freeTable.id != currentTable.id)) {
                       // warning the user that the table already has a bill
                       showDialog(context: context, builder: (context) {
                         return busyTable(context, currentTable, newTab);
                       });
                     } else {
-                      Get.find<BillingController>().addTab(newTab);
-                      Get.find<BillingController>().associateTabWithTable(newTab.id, currentTable.id);
+                      Get.find<TabSessionController>().addTab(newTab);
+                      Get.find<TabSessionController>().associateTabWithTable(newTab.id, currentTable.id);
                       
                       Get.back();
                     }
@@ -221,7 +224,7 @@ class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderS
                                             IconButton(
                                               onPressed: () {
                                                 // remove one product from the tab
-                                                final currentTab = Get.find<BillingController>().currentActiveTabs.firstWhere((tab) => tab.id == tabId);
+                                                final currentTab = Get.find<TabSessionController>().currentActiveTabs.firstWhere((tab) => tab.id == tabId);
                                                 final currentProductQuantity = currentTab.productsResume.firstWhere((productResume) => productResume.productId == product.id).quantity;
                                                 if (currentProductQuantity <= currentOrder[product.id]! * -1) return;
 
@@ -358,7 +361,7 @@ class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderS
 }
 
 void confirmOrder(String tabId, Map<String,int> order) {
-  BillingController billingController = Get.find<BillingController>();
+  TabSessionController billingController = Get.find<TabSessionController>();
   TabModel currentTab = billingController.currentActiveTabs.firstWhere((tab) => tab.id == tabId);
 
   for (var currentQuantityOrder in order.entries) {
@@ -391,7 +394,10 @@ Widget tabResumeInfo(BuildContext context, String tabId) {
         // create a option to change the table, change the alias, delete the tab and a resume of the tab
         TextButton(
           onPressed: () {
-            
+            // show a dialog to change the table
+            showDialog(context: context, builder: (context) {
+              return changeTable(context, tabId);
+            });
           },
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.primary,
@@ -417,7 +423,7 @@ Widget tabResumeInfo(BuildContext context, String tabId) {
         ),
         const SizedBox(height: 12),
         Expanded(
-          child: GetBuilder<BillingController>(
+          child: GetBuilder<TabSessionController>(
             builder: (controller) {
               TabModel currentTab = controller.currentActiveTabs.firstWhere((tab) => tab.id == tabId);
               return ListView(
@@ -434,6 +440,30 @@ Widget tabResumeInfo(BuildContext context, String tabId) {
             }
           ),
         ),
+        // add a subtotal resume
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Subtotal',
+              style: TextStyle(
+                fontSize: 20
+              ),
+            ),
+            GetBuilder<TabSessionController>(
+            builder: (controller) {
+              TabModel currentTab = controller.currentActiveTabs.firstWhere((tab) => tab.id == tabId);
+              return Text(
+                formatCurrency(currentTab.subtotal),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
+              );
+            }
+          ),
+          ],
+        ),
+        const SizedBox(height: 12,),
         TextButton(
           onPressed: () {
             // show a dialog to confirm the deletion of the tab
@@ -468,7 +498,7 @@ Widget tabResumeInfo(BuildContext context, String tabId) {
 }
 
 AlertDialog deleteTabWarning(BuildContext context, String tabId) {
-  BillingController billingController = Get.find<BillingController>();
+  TabSessionController billingController = Get.find<TabSessionController>();
   TabModel currentTab = billingController.currentActiveTabs.firstWhere((tab) => tab.id == tabId);
 
   return AlertDialog(
@@ -497,7 +527,7 @@ AlertDialog deleteTabWarning(BuildContext context, String tabId) {
       ),
       TextButton(
         onPressed: () {
-          Get.find<BillingController>().removeTab(tabId);
+          Get.find<TabSessionController>().removeTab(tabId);
           Get.back();
         },
         style: TextButton.styleFrom(
@@ -510,7 +540,118 @@ AlertDialog deleteTabWarning(BuildContext context, String tabId) {
   );
 }
 
+AlertDialog changeTable(BuildContext context, String tabId) {
+  final billingController = Get.find<TabSessionController>();
+  final currentTab = billingController.currentActiveTabs.firstWhere((tab) => tab.id == tabId);
+
+  final tables = Get.find<TableController>().tables;
+  final currentTable = tables.firstWhere((table) => table.id == currentTab.tableId);
+  final otherTables = tables.where((table) => table.id != currentTab.tableId).toList();
+
+  if (otherTables.isEmpty) {
+    return AlertDialog(
+      title: const Text(
+        'Cambiar mesa',
+      ),
+      surfaceTintColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: MediaQuery.of(context).size.height * 0.2,
+        child: const Column(
+          children: [
+            Text('No hay otras mesas disponibles para cambiar la cuenta'),
+          ],
+        ),
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Aceptar',
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 22,
+                )
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  String selectedTableId = otherTables.first.id;
+
+  return AlertDialog(
+    title: const Text(
+      'Cambiar mesa',
+    ),
+    surfaceTintColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+    content: SizedBox(
+      width: double.maxFinite,
+      height: MediaQuery.of(context).size.height * 0.2,
+      child: Column(
+        children: [
+          Text('La mesa actual es ${currentTable.alias ?? currentTable.name}, selecciona la mesa a la que deseas cambiar la cuenta'),
+          const SizedBox(height: 12),
+          DropdownButtonFormField(
+            value: selectedTableId,
+            onChanged: (value) {
+              selectedTableId = value as String;
+            },
+            items: otherTables.map((TableModel table) {
+              return DropdownMenuItem(value: table.id, child: Text(table.alias ?? table.name));
+            }).toList(),
+            decoration: const InputDecoration(
+              labelText: 'Mesa',
+              hintText: 'Selecciona mesa',
+              border: OutlineInputBorder(),
+            ),
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validator: (value) {
+              if (value == null) {
+                return 'Selecciona una mesa';
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+    ),
+    actionsAlignment: MainAxisAlignment.spaceBetween,
+    actions: [
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+        ),
+        child: const Text(
+          'Cancelar',
+        ),
+      ),
+      TextButton(
+        onPressed: () {
+          billingController.associateTabWithTable(tabId, selectedTableId);
+          Navigator.of(context).pop();
+        },
+        child: const Text('Cambiar'),
+      ),
+    ],
+  );
+}
+
 AlertDialog busyTable(BuildContext context, TableModel table, TabModel newTab) {
+  final activeTabs = Get.find<TabSessionController>().currentActiveTabs;
+  final tableTabs = activeTabs.where((itemTab) => itemTab.tableId == table.id,);
+  
   return AlertDialog(
     title: const Text(
       'Mesa ocupada',
@@ -524,9 +665,7 @@ AlertDialog busyTable(BuildContext context, TableModel table, TabModel newTab) {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.12,
             child: ListView(
-              children: table.tabIds.map((tab) {
-                TabModel currentTab = Get.find<BillingController>().currentActiveTabs.firstWhere((currentTab) => currentTab.id == tab);
-                
+              children: tableTabs.map((currentTab) {
                 return ListTile(
                   title: Text(currentTab.alias ?? currentTab.id),
                   shape: RoundedRectangleBorder(
@@ -566,8 +705,8 @@ AlertDialog busyTable(BuildContext context, TableModel table, TabModel newTab) {
       TextButton(
         onPressed: () {
           // associate the tab with the table
-          Get.find<BillingController>().addTab(newTab);
-          Get.find<BillingController>().associateTabWithTable(newTab.id, table.id);
+          Get.find<TabSessionController>().addTab(newTab);
+          Get.find<TabSessionController>().associateTabWithTable(newTab.id, table.id);
           // close the dialog and the previous dialog
           Navigator.of(context).pop();
           Navigator.of(context).pop();

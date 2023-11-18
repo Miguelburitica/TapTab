@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/billing_controller.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/table_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/table_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/layout.dart';
 import 'package:uuid/v1.dart';
@@ -10,7 +10,7 @@ class CreateTablePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentTables = Get.find<BillingController>().tables;
+    final currentTables = Get.find<TableController>().tables;
     
     final arguments = Get.arguments;
     final String? optionalMessage = arguments != null ? arguments['message'] : null;
@@ -75,9 +75,8 @@ class CreateTablePage extends StatelessWidget {
                     id: const UuidV1().generate(),
                     name: 'Mesa ${currentTables.length + 1}',
                     alias: aliasController.text,
-                    tabIds: [],
                   );
-                  Get.find<BillingController>().addTable(newTable);
+                  Get.find<TableController>().addTable(newTable);
                   
                   if (optionalMessage != null) {
                     Get.back();

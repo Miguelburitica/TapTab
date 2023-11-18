@@ -2,7 +2,6 @@ class TableModel {
   final String id;
   final String name;
   String? alias;
-  List<String> tabIds;
   double tableTotal = 0;
   
   // todo table shape and position properties
@@ -10,7 +9,6 @@ class TableModel {
   TableModel({
     required this.id,
     required this.name,
-    required this.tabIds,
     this.alias,
   });
 
@@ -19,7 +17,6 @@ class TableModel {
       id: json['id'],
       name: json['name'],
       alias: json['alias'] == '' ? null : json['alias'],
-      tabIds: json['tabIds'] == '' ? null : json['billId'],
     );
   }
 }
