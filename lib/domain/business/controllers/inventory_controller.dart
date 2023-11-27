@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:tap_tab_pedidos_y_cuentas/domain/business/adapters.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/category_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/product_model.dart';
 import 'package:uuid/v1.dart';
@@ -8,6 +7,8 @@ import 'package:uuid/v1.dart';
 class InventoryController extends GetxController {
   final _products = <ProductModel>[];
   final _categories = <CategoryModel>[];
+  Box<ProductModel>? productsBox;
+  Box<CategoryModel>? categoriesBox;
 
   List<ProductModel> get products => _products;
   List<CategoryModel> get categories => _categories;
@@ -15,13 +16,15 @@ class InventoryController extends GetxController {
  @override
  void onInit() async {
    super.onInit();
-    var box = await Hive.openBox('inventory');
-    Hive.registerAdapter(ProductAdapter());
-    Hive.registerAdapter(CategoryAdapter());
+    productsBox = await Hive.openBox<ProductModel>('products');
+    categoriesBox = await Hive.openBox<CategoryModel>('categories');
+
     // validate if the box is empty, if it is not, then load the data
-    if (box.isNotEmpty) {
-      _products.addAll(box.get('products'));
-      _categories.addAll(box.get('categories'));
+    if (productsBox != null && productsBox!.isNotEmpty) {
+      _products.addAll(productsBox!.values.toList());
+    }
+    if (categoriesBox != null && categoriesBox!.isNotEmpty) {
+      _categories.addAll(categoriesBox!.values.toList());
       return;
     }
     // if the box is empty, then add some data
@@ -66,22 +69,16 @@ class InventoryController extends GetxController {
     }
   }
 
-  void updateInventoryStorage() {
-    var box = Hive.box('inventory');
-    box.put('products', _products);
-    box.put('categories', _categories);
-  }
-
   void addProduct(ProductModel product) {
     _products.add(product);
-    updateInventoryStorage();
+    productsBox!.put(product.id, product);
     
     update();
   }
 
   void removeProduct(ProductModel product) {
     _products.remove(product);
-    updateInventoryStorage();
+    productsBox!.delete(product.id);
 
     update();
   }
@@ -89,22 +86,27 @@ class InventoryController extends GetxController {
   void updateProduct(ProductModel product) {
     final index = _products.indexWhere((element) => element.id == product.id);
     _products[index] = product;
-    updateInventoryStorage();
+    productsBox!.put(product.id, product);
 
     update();
   }
 
   void addCategory(CategoryModel category) {
     _categories.add(category);
-    updateInventoryStorage();
+    categoriesBox!.put(category.id, category);
     
     update();
   }
 
   void removeCategory(CategoryModel category) {
+    // remove from the products box the products that belong to this category
+    final productIdsToRemove = products.where((product) => product.categoryId == category.id).map((e) => e.id).toList();
+    productsBox!.deleteAll(productIdsToRemove);
+
     _products.removeWhere((product) => product.categoryId == category.id);
     _categories.remove(category);
-    updateInventoryStorage();
+
+    categoriesBox!.delete(category.id);
     
     update();
   }
@@ -112,7 +114,7 @@ class InventoryController extends GetxController {
   void editCategory(CategoryModel category) {
     final index = _categories.indexWhere((element) => element.id == category.id);
     _categories[index] = category;
-    updateInventoryStorage();
+    categoriesBox!.put(category.id, category);
     update();
   }
 }

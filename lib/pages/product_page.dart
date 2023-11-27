@@ -19,14 +19,21 @@ class ProductPage extends StatelessWidget {
     final TextEditingController descriptionController = TextEditingController();
     final arguments = Get.arguments;
     CategoryModel currentCategory = currentCategories.firstWhereOrNull((category) => category.id == arguments['categoryId']) ?? currentCategories.first;
+    ProductModel? currentProduct = inventoryController.products.firstWhereOrNull((product) => product.id == arguments['id']);
+
+    if (currentProduct != null) {
+      nameController.text = currentProduct.name;
+      priceController.text = currentProduct.price.toString();
+      descriptionController.text = currentProduct.description ?? '';
+    }
     
     return Layout(
-      title: 'Nuevo producto',
+      title: currentProduct != null ? 'Editar producto' : 'Nuevo producto',
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Nuevo producto',
+            currentProduct != null ? 'Editar ${currentProduct.name}' : 'Nuevo producto',
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
@@ -120,6 +127,25 @@ class ProductPage extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
+                  if (nameController.text.isEmpty) {
+                    Get.snackbar(
+                      'Error',
+                      'El nombre no puede estar vacío',
+                      snackPosition: SnackPosition.TOP,
+                      backgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                      colorText: Theme.of(context).colorScheme.error,
+                    );
+                    return;
+                  }
+
+                  if (currentProduct != null) {
+                    currentProduct.name = nameController.text;
+                    currentProduct.price = double.parse(priceController.text);
+                    currentProduct.description = descriptionController.text;
+                    inventoryController.updateProduct(currentProduct);
+                    Get.back();
+                    return;
+                  }
                   // create the new tab
                   ProductModel newProduct = ProductModel(
                     id: const UuidV1().generate(),
@@ -136,21 +162,21 @@ class ProductPage extends StatelessWidget {
                   foregroundColor: Theme.of(context).colorScheme.primary,
                   backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Crear',
-                        style: TextStyle(
+                        currentProduct != null ? 'Editar' : 'Crear',
+                        style: const TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 22,
                         )
                       ),
-                      SizedBox(width: 16),
-                      Icon(
+                      const SizedBox(width: 16),
+                      const Icon(
                         Icons.add_task_rounded,
                         size: 16,
                       ),

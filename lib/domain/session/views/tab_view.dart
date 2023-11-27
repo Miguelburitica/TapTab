@@ -58,7 +58,30 @@ class TabCard extends StatelessWidget {
                   foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
                 ),
                 onPressed: () {
-                  // Implement your payment logic here
+                  // confirmation warning
+                  Get.defaultDialog(
+                    title: '¿Estás seguro?',
+                    contentPadding: const EdgeInsets.symmetric(vertical: 30, horizontal: 14),
+                    content: const Text('¿Deseas cerrar esta cuenta?'),
+                    confirm: ElevatedButton(
+                      onPressed: () {
+                        final tabController = Get.find<TabSessionController>();
+                        tabController.finishTab(tab.id);
+                        Get.back();
+                      },
+                      child: const Text('Sí'),
+                    ),
+                    cancel: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.error,
+                        backgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                      ),
+                      child: const Text('No'),
+                    ),
+                  );
                 },
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,8 +118,10 @@ class TabGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (tabs.isEmpty) return const Center(child: Text('No hay cuentas activas'));
+    final tabsToShow = tabs.where((tab) => tab.status == TabStatus.active).toList();
+    
     return GridView.builder(
-      itemCount: tabs.length,
+      itemCount: tabsToShow.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // number of products in a row
         crossAxisSpacing: 10, // spacing between products horizontally
@@ -104,7 +129,7 @@ class TabGrid extends StatelessWidget {
         childAspectRatio: 0.6, // width / height
       ),
       itemBuilder: (context, index) {
-        return TabCard(tab: tabs[index]);
+        return TabCard(tab: tabsToShow[index]);
       },
     );
   }

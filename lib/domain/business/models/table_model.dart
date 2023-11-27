@@ -1,7 +1,14 @@
+import 'package:hive_flutter/hive_flutter.dart';
+
+@HiveType(typeId: 3)
 class TableModel {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   String? alias;
+  @HiveField(3)
   double tableTotal = 0;
   
   // todo table shape and position properties

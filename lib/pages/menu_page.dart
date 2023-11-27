@@ -85,7 +85,7 @@ class MenuPage extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 4,
                       mainAxisSpacing: 8,
-                      childAspectRatio: 0.8,
+                      childAspectRatio: 0.7,
                     ),
                     itemBuilder: (context, index) {
                       final category = currentCategories[index];
@@ -154,27 +154,34 @@ class MenuPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Expanded(
-                                child: ListView(
-                                  shrinkWrap: true,
-                                  children: [
-                                  // TODO edit products
-                                    ...products.map((product) => Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            product.name,
-                                            style: const TextStyle(
-                                              overflow: TextOverflow.ellipsis,
-                                              fontWeight: FontWeight.bold,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Get.toNamed('/products-list', arguments: {'categoryId': category.id});
+                                  },
+                                  child: ListView(
+                                    shrinkWrap: true,
+                                    children: [
+                                    // TODO edit products
+                                      ...products.map((product) => GestureDetector(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                product.name,
+                                                style: const TextStyle(
+                                                  overflow: TextOverflow.ellipsis,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                            const SizedBox(width: 4),
+                                            Text(product.price.floor().toString()),
+                                          ],
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(product.price.floor().toString()),
-                                      ],
-                                    )).toList(),
-                                  ]
+                                      )).toList(),
+                                    ]
+                                  ),
                                 ),
                               ),
                               // total and button to add products

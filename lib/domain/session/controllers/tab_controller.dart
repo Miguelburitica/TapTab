@@ -1,23 +1,45 @@
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/table_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/product_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/controllers/session_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/session/models/tab_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/table_model.dart';
 
 class TabSessionController extends GetxController {
   final _sessionTabs = <TabModel>[];
+  Box<TabModel>? tabsBox;
 
   List<TabModel> get currentActiveTabs => _sessionTabs.where((tab) => tab.status == TabStatus.active).toList();
 
+  @override
+  void onInit() async {
+    tabsBox = await Hive.openBox<TabModel>('tabs');
+    
+    // validate if the box is empty, if it is not, then load the data
+    if (tabsBox!.isNotEmpty) {
+      _sessionTabs.addAll(tabsBox!.values.where((tab) => tab.status == TabStatus.active).toList());
+    }
+    super.onInit();
+  }
+
   void addTab(TabModel tab) {
     _sessionTabs.add(tab);
+    tabsBox!.put(tab.id, tab);
+    
+    update();
+  }
+
+  void updateTab(TabModel tab) {
+    _sessionTabs.removeWhere((tab) => tab.id == tab.id);
+    _sessionTabs.add(tab);
+    tabsBox!.put(tab.id, tab);
+    
     update();
   }
 
   void addProductsToTab(String tabId, List<ProductModel> products) {
     TabModel tab = _sessionTabs.firstWhere((tab) => tab.id == tabId);
-
-    tab.products.addAll(products);
 
     List<ProductsResume> productsResume = tab.productsResume;
     for (var element in products) {
@@ -41,14 +63,15 @@ class TabSessionController extends GetxController {
       value = value + productResume.subtotal;
     }
     tab.subtotal = value;
+
+    tab.updateTab();
+    tabsBox!.put(tab.id, tab);
     
     update();
   }
 
   void removeProductsFromTab(String tabId, List<ProductModel> products) {
     TabModel tab = _sessionTabs.firstWhere((tab) => tab.id == tabId);
-
-    tab.products.removeWhere((product) => products.any((element) => element.id == product.id));
 
     List<ProductsResume> productsResume = tab.productsResume;
     for (var element in products) {
@@ -67,18 +90,28 @@ class TabSessionController extends GetxController {
     tab.subtotal = value;
     
     tab.updateTab();
+    tabsBox!.put(tab.id, tab);
     
     update();
   }
 
   void finishTab(String tabId) {
-    final tables = Get.find<TableController>().tables;
+    final tableController = Get.put(TableController());
+    final sessionController = Get.put(SessionController());
+    final tables = tableController.tables;
     TabModel tab = _sessionTabs.firstWhere((tab) => tab.id == tabId);
     tab.status = TabStatus.closed;
-    // todo: add a method to calculate the total of the tab and add it to the table
 
-    TableModel table = tables.firstWhere((table) => table.id == tab.tableId);
+    TableModel? table = tables.firstWhereOrNull((table) => table.id == tab.tableId);
+    if (table == null) {
+      sessionController.tabPayed(tab);
+      update();
+      return;
+    }
+    
     table.tableTotal += tab.subtotal;
+    tableController.updateTable(table);
+    sessionController.tabPayed(tab);
     
     update();
   }

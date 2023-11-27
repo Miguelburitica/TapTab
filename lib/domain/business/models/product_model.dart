@@ -1,7 +1,14 @@
+import 'package:hive_flutter/hive_flutter.dart';
+
+@HiveType(typeId: 1)
 class ProductsResume {
+  @HiveField(0)
   final String productId;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   int quantity;
+  @HiveField(3)
   double subtotal;
 
   ProductsResume({
@@ -21,12 +28,19 @@ class ProductsResume {
   }
 }
 
+@HiveType(typeId: 2)
 class ProductModel {
+  @HiveField(0)
   final String id;
-  final String name;
-  final String? description;
-  final String? image;
-  final double price;
+  @HiveField(1)
+  String name;
+  @HiveField(2)
+  String? description;
+  @HiveField(3)
+  String? image;
+  @HiveField(4)
+  double price;
+  @HiveField(5)
   final String categoryId;
 
   ProductModel({

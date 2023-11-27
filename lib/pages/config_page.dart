@@ -33,9 +33,9 @@ class ConfigPage extends StatelessWidget {
             title: 'Consolidado',
             subtitle: 'Encontrarás un reporte general de ventas y también uno por cada sesión que hayas realizado hasta la fecha',
             icon: Icons.bar_chart_rounded,
-            isEnable: false,
             callback: () {
-            }
+              Get.toNamed('/billing-report');
+            },
           ),
           CustomListTile(
             title: 'Personal',

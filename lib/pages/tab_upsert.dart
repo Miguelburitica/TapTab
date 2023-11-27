@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/table_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/controllers/inventory_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/product_model.dart';
+import 'package:tap_tab_pedidos_y_cuentas/domain/session/controllers/session_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/session/controllers/tab_controller.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/session/models/tab_model.dart';
 import 'package:tap_tab_pedidos_y_cuentas/domain/business/models/table_model.dart';
@@ -21,6 +22,7 @@ class TabUpsertPage extends StatefulWidget {
 class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderStateMixin {
   final availableTables = Get.find<TableController>().tables;
   final activeTabs = Get.find<TabSessionController>().currentActiveTabs;
+  final currentSession = Get.find<SessionController>().currentSession;
   final arguments = Get.arguments ?? {};
   final currentCategories = Get.find<InventoryController>().categories;
   final currentProducts = Get.find<InventoryController>().products;
@@ -125,10 +127,10 @@ class TabUpsertPageState extends State<TabUpsertPage> with SingleTickerProviderS
                     // create the new tab
                     TabModel newTab = TabModel(
                       id: const UuidV1().generate(),
+                      sessionId: currentSession!.id,
                       tableId: currentTable.id,
                       alias: aliasController.text.isEmpty ? (currentTable.name) : aliasController.text,
                       subtotal: 0,
-                      products: [],
                       status: TabStatus.active,
                       createdAt: DateTime.now(),
                       updatedAt: DateTime.now(),
@@ -615,7 +617,13 @@ AlertDialog changeTable(BuildContext context, String tabId) {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
               if (value == null) {
-                return 'Selecciona una mesa';
+                Get.snackbar(
+                  'Error',
+                  'Selecciona una mesa',
+                  backgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                  colorText: Theme.of(context).colorScheme.error,
+                );
+                return;
               }
               return null;
             },
@@ -640,7 +648,10 @@ AlertDialog changeTable(BuildContext context, String tabId) {
       TextButton(
         onPressed: () {
           billingController.associateTabWithTable(tabId, selectedTableId);
-          Navigator.of(context).pop();
+          currentTab.alias = tables.firstWhere((table) => table.id == selectedTableId).alias ?? tables.firstWhere((table) => table.id == selectedTableId).name;
+          billingController.updateTab(currentTab);
+          Get.back();
+          Get.back();
         },
         child: const Text('Cambiar'),
       ),

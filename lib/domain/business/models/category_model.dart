@@ -1,5 +1,10 @@
+import 'package:hive_flutter/hive_flutter.dart';
+
+@HiveType(typeId: 0)
 class CategoryModel {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
   // todo create a sorteable system
 
